@@ -1,0 +1,21 @@
+controller_frequency: 15.0
+
+TrajectoryPlannerROS:
+    max_vel_x: 0.175
+    min_vel_x: 0.175
+    max_vel_theta: 1.0
+    min_vel_theta: -1.0
+    min_in_place_vel_theta: 1.0
+    escape_vel: -0.175
+
+    acc_lim_theta: 0.5
+    acc_lim_x: 0.05
+    acc_lim_y: 0.05
+
+    holonomic_robot: false
+
+    yaw_goal_tolerance: 0.2
+    xy_goal_tolerance: 0.3
+
+    sim_time: 4.0
+    vtheta_samples: 40

@@ -1,0 +1,12 @@
+<library path="lib/libtest_nodelet_topic_tools">
+  <class name="test_nodelet_topic_tools/NodeletThrottleString" type="test_nodelet_topic_tools::NodeletThrottleString" base_class_type="nodelet::Nodelet">
+    <description>
+      Throttle strings in nodelet (testing only).
+    </description>
+  </class>
+  <class name="test_nodelet_topic_tools/NodeletLazyString" type="test_nodelet_topic_tools::NodeletLazyString" base_class_type="nodelet::Nodelet">
+    <description>
+      Lazy transport strings in nodelet (testing only).
+    </description>
+  </class>
+</library>

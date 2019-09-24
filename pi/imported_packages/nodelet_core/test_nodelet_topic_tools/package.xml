@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>test_nodelet_topic_tools</name>
+  <version>1.9.16</version>
+  <description>
+    A package for nodelet_topic_tools unit tests.
+  </description>
+  <maintainer email="mikael@osrfoundation.org">Mikael Arguedas</maintainer>
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/nodelet_topic_tools</url>
+  <url type="bugtracker">https://github.com/ros/nodelet_core/issues</url>
+  <url type="repository">https://github.com/ros/nodelet_core</url>
+  <author>Radu Bogdan Rusu</author>
+  <author>Tully Foote</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>rostest</build_depend>
+
+  <depend>message_filters</depend>
+  <depend>nodelet</depend>
+  <depend>nodelet_topic_tools</depend>
+  <depend>pluginlib</depend>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+
+  <test_depend>rospy</test_depend>
+
+  <export>
+    <nodelet plugin="${prefix}/test/test_nodelets.xml"/>
+  </export>
+</package>

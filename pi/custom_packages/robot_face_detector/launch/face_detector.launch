@@ -1,0 +1,32 @@
+<!-- Convert the depth image and the rgb image into a xyzrgb Point Cloud -->
+<launch>
+    <!-- Nodelet manager for this pipeline -->
+    <node pkg="nodelet" type="nodelet" args="manager" name="standalone_nodelet" output="screen"/>
+
+  <!-- The depth image is already rectified and registered
+       to the camera optical frame, but stored in mm; convert it
+       to meters -->
+  	
+	<node pkg="nodelet" type="nodelet" name="metric_rect" 
+        args="load depth_image_proc/convert_metric standalone_nodelet --no-bond" output="screen">
+    	<remap from="image_raw" to="camera/depth/image_raw"/>
+    	<remap from="image" to="camera/depth/image"/>
+	</node>
+
+    <!-- Convert to point cloud -->
+    <node pkg="nodelet" type="nodelet" name="depth_image_proc" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet --no-bond" output="screen">
+
+        <!-- Input: Camera calibration and metadata.  (sensor_msgs/CameraInfo) -->
+        <remap from="rgb/camera_info" to="camera/rgb/camera_info"/>
+
+        <!-- Input: Rectified color image. (sensor_msgs/Image) -->
+        <remap from="rgb/image_rect_color" to="camera/rgb/image_rect_color"/>
+
+        <!-- Input: Rectified depth image, registered to the RGB camera. (sensor_msgs/Image) -->
+        <remap from="depth/image_rect" to="camera/depth/image_rect"/>
+
+        <!-- Output: XYZ point cloud. If using PCL, subscribe as PointCloud<PointXYZ>.  (sensor_msgs/PointCloud2)  -->
+        <remap from="depth/points" to="point_cloud/points"/>
+
+    </node>
+</launch>
