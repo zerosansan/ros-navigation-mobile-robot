@@ -1,0 +1,12 @@
+<launch>
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+      <remap from="scan" to="base_scan"/>
+      <param name="lskip" value="10"/>
+      <param name="linearUpdate" value="0.1"/>
+      <param name="angularUpdate" value="0.1"/>
+      <param name="xmin" value="-10.0"/>
+      <param name="ymin" value="-10.0"/>
+      <param name="xmax" value="10.0"/>
+      <param name="ymax" value="10.0"/>
+    </node>
+</launch>
