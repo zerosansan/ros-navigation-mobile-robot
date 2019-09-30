@@ -139,7 +139,7 @@ the current hardware setup. Thankfully, ROS community has provided a useful wiki
 
 *  [Running ROS across multiple machines](http://wiki.ros.org/ROS/Tutorials/MultipleMachines)
 
-**WIFI sharing through ethernet cable**
+**Step 1: Network setup between local computers (Raspberry Pi and Laptop)**
 
 The WLAN from the robot's local computer will be shared to Raspberry Pi through an ethernet cable as 
 shown in the diagram earlier in `Hardware Setup`. Run the following on your terminal and follow the guide.
@@ -150,37 +150,49 @@ nm-connection-editor
 
 *  [Sharing wireless internet connection through ethernet](https://askubuntu.com/questions/359856/share-wireless-internet-connection-through-ethernet)
 
-If everything runs smoothly, you should be able to ping between the two local computers.
+If everything runs smoothly, you should be able to ping between the two local computers. At this point, the entire robot system is ready to be run. 
+However, the remote computer would not be able to subscribe to topics published from the Rapsberry Pi. We will address this issue in step 2.
+
+**Step 2: Network setup between robot computers (Raspberry Pi and Laptop) and remote computer**
+
+The master needs to be able to communicate and reach to all computers involved in order to successfully send and receive topics. So we are going to use 
+the laptop computer as a WIFI hotspot for the remote computer to connect to. Since it is not possible to both connect to the existing WIFI and broadcast 
+a WIFI hotspot using the laptop internal WIFI module, we will be using an external WIFI USB adapter to connect to the existing WIFI 
+and use the internal WIFI module to broadcast a WIFI hotspot for the remote computer to connect to.
+
+[Sharing wireless internet connection through wireless hotspot](https://askubuntu.com/questions/318973/how-do-i-create-a-wifi-hotspot-sharing-wireless-internet-connection-single-adap)
+
+Once completely setup, connect to the newly created hotspot with a remote computer.
+
+**Step 3: Setting up the ROS network**
 
 Example of `~/.bashrc` file with our current setup:
 
 **Robot computer 1** (Raspberry Pi) 
 
-WLAN IP: 10.42.0.179
+eth0 IP: 10.42.0.179
 ```
 [...]
 export ROS_IP=10.42.0.179
-export ROS_MASTER_URI=http://192.168.31.196:11311
+export ROS_MASTER_URI=http://192.168.31.123:11311
 ```
 
 **Robot computer 2** (Laptop) **(roscore)**
 
-WLAN IP: 192.168.31.196
-
-LAN IP: 10.42.0.1
+wlan0 IP: 192.168.31.123
 ```
 [...]
-export ROS_IP=192.168.31.196
-export ROS_MASTER_URI=http://192.168.31.196:11311
+export ROS_IP=192.168.31.123
+export ROS_MASTER_URI=http://192.168.31.123:11311
 ```
 
 **Robot computer 3** (Remote Laptop) 
 
-WLAN IP: 192.168.31.165
+wlan0 IP: 10.42.1.254
 ```
 [...]
-export ROS_IP=192.168.31.165
-export ROS_MASTER_URI=http://192.168.31.196:11311
+export ROS_IP=10.42.1.254
+export ROS_MASTER_URI=http://192.168.31.123:11311
 ```
 
 After editing the `~/.bashrc` file of each computer, run `source ~/.bashrc` on each computer.
