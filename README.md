@@ -17,14 +17,14 @@ communication between the local and remote computers as shown below.
 
 <img src="images/readme-hardware-setup.jpg" align="middle">
 
-**Local computers**
+**Local computer**
 
 A [Raspberry Pi 3 model B](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) is equipped on Eddie to interface with the sensors and motors to run odometry 
 computations and move Eddie respectively. Due to the low computational power of Raspberry Pi, a separate 
 laptop computer is used to run the more computationally demanding functionalities such as SLAM, navigation, 
 face detection and high level behaviors.
 
-**Remote computers**
+**Remote computer**
 
 Any remote computer can be used as user interface to send commands to Eddie's onboard computer and also
 to run [visualization software](http://wiki.ros.org/rviz) provided by ROS.
