@@ -352,7 +352,6 @@ There are useful tutorials on how to use rViz in the wiki page. For convenience,
 ## Authors
 
 * **Hafiq Anas** - *Initial work* - UBD Final Year Project 2018 - 2019
-* asdaad
 
 
 ## Acknowledgments
