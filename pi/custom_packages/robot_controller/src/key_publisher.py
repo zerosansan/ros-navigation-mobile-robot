@@ -1,21 +1,23 @@
 #!/usr/bin/env python
+
 import sys, select, tty, termios
 import rospy
-
 from std_msgs.msg import String
 
 class KeyPublisher:
+
+    # ROS
+    NODE_NAME = 'keyboard_driver'
+    PUB_RATE = 100
+
     def __init__(self):
+    
         # ROS Node initialization
-        rospy.init_node('keyboard_driver', disable_signals = True)
-        node_name = rospy.get_name()
-        rospy.logwarn("%s node started" % node_name)
+        rospy.init_node(KeyPublisher.NODE_NAME, disable_signals = True)
+        rospy.logwarn("%s node started" % KeyPublisher.NODE_NAME)
 
         # Publishers
-        self.key_pub = rospy.Publisher('keys', String, queue_size = 1)
-
-        # Subscribers
-        # None
+        self.__key_pub = rospy.Publisher('keys', String, queue_size = 1)
     
     def spin(self):
         """
@@ -30,13 +32,12 @@ class KeyPublisher:
         try:
             old_attr = termios.tcgetattr(sys.stdin)
             tty.setcbreak(sys.stdin.fileno())
-            r = rospy.Rate(100)
+            r = rospy.Rate(KeyPublisher.PUB_RATE)
             
             while not rospy.is_shutdown():
                 try:
                     self.main()
                     r.sleep()
-                
                 except KeyboardInterrupt:
                     break
         
@@ -47,7 +48,6 @@ class KeyPublisher:
     def main(self):
         if select.select([sys.stdin], [], [], 0)[0] == [sys.stdin]:
             self.key_pub.publish(sys.stdin.read(1))
-
 
 if __name__ == '__main__':
     try:

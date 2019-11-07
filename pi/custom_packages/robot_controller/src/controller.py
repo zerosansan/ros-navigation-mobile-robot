@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import rospy
 import pigpio
 import utils
@@ -27,6 +28,7 @@ class Controller:
     AXLE_LENGTH = 0.392
     
     def __init__(self):
+    
         self.__wheel_radius = Controller.WHEEL_RADIUS
         self.__axle_length = Controller.AXLE_LENGTH
         
@@ -59,9 +61,6 @@ class Controller:
         # ROS node initialization
         rospy.init_node(Controller.NODE_NAME, disable_signals = True)
         rospy.logwarn("%s node started" % Controller.NODE_NAME)
-        
-        # Publishers
-        # None
 
         # Subscribers
         rospy.Subscriber('/cmd_vel', Twist, self._twist_callback)

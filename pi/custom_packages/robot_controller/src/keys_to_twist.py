@@ -1,25 +1,37 @@
 #!/usr/bin/env python
-import rospy
 
+import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 
-key_mapping = {'w': [0, 0.25], ' ': [0, 0], 'a': [1.2, 0], 's': [0, -0.25], 'd':[-1.2, 0]}
-
 class KeysToTwist:
+
+    # ROS
+    NODE_NAME = 'keys_to_twist'
+    PUB_RATE = 20
+    
+    # Keyboard input to velocity (in m/s)
+    KEY_MAPPING = {\
+        'w': [0, 0.25],\
+        ' ': [0, 0],\
+        'a': [1.2, 0],\
+        's': [0, -0.25],\
+        'd':[-1.2, 0]
+    }
+    
     def __init__(self):
+    
         # ROS Node initialization
-        rospy.init_node('keys_to_twist', disable_signals = True)
-        node_name = rospy.get_name()
-        rospy.logwarn("%s node started" % node_name)
+        rospy.init_node(KeysToTwist.NODE_NAME, disable_signals = True)
+        rospy.logwarn("%s node started" % KeysToTwist.NODE_NAME)
         
         # Publishers
         self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
         
         # Subscribers
-        rospy.Subscriber('keys', String, self.keys_callback)
+        rospy.Subscriber('keys', String, self._keys_callback)
 
-        self.last_twist = None
+        self.__last_twist = None
 
     def spin(self):
         """
@@ -34,26 +46,25 @@ class KeysToTwist:
         """
         try:
             self.last_twist = Twist() # Initialized to zero
-            r = rospy.Rate(20)
+            r = rospy.Rate(KeysToTwist.PUB_RATE)
 
             while not rospy.is_shutdown():
                 try:
                     self.main()
                     r.sleep()
-                
                 except KeyboardInterrupt:
                     break
 
         except rospy.ROSInterruptException: pass
 
     def main(self):
-        self.twist_pub.publish(self.last_twist)
+        self._twist_pub.publish(self.__last_twist)
 
     def keys_callback(self, msg):
-        if (len(msg.data) == 0 or not key_mapping.has_key(msg.data[0])):
+        if (len(msg.data) == 0 or not KeysToTwist.KEY_MAPPING.has_key(msg.data[0])):
             return -1
 
-        vels = key_mapping[msg.data[0]]
+        vels = KeysToTwist.KEY_MAPPING[msg.data[0]]
         self.last_twist.linear.x = vels[1]
         self.last_twist.angular.z = vels[0]
 
