@@ -1,65 +1,70 @@
 #!/usr/bin/env python
 import rospy
 import pigpio
-import time
-import math
+import utils
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
-pins = {'motor_left':18,
-        'motor_right':17
-        }
-
-# PWM settings
-STOP_WIDTH = 1500
-FREQUENCY = 50
-
-# pigpio initialization for PWM
-left_wheel = pigpio.pi()
-right_wheel = pigpio.pi()
-
 class Controller:
-    def __init__(self, motor_left_pin = pins['motor_left'], motor_right_pin = pins['motor_right'], width = STOP_WIDTH, freq = FREQUENCY):
-        self.freq = freq
-        self.width = width
-        # GPIO pins setup
-        self.motor_left_pin = motor_left_pin
-        self.motor_right_pin = motor_right_pin
+
+    # ROS
+    NODE_NAME = 'robot_controller'
+    PUB_RATE = 10
+
+    # PWM settings
+    STOP_PULSE_WIDTH = 1500
+    FREQUENCY = 50
+    
+    # GPIO pins
+    PINS = {\
+        'motor_left':18,\
+        'motor_right':17
+    }
+    
+    # Wheel specification (in meters)
+    WHEEL_RADIUS = 0.075
+    AXLE_LENGTH = 0.392
+    
+    def __init__(self):
+        self.__wheel_radius = Controller.WHEEL_RADIUS
+        self.__axle_length = Controller.AXLE_LENGTH
         
         # Motor PWM setup
-        left_wheel.set_PWM_frequency(self.motor_left_pin, self.freq)
-        left_wheel.set_servo_pulsewidth(self.motor_left_pin, self.width)
-        right_wheel.set_PWM_frequency(self.motor_right_pin, self.freq)
-        right_wheel.set_servo_pulsewidth(self.motor_right_pin, self.width)
-       
-        # ROS node initialization
-        rospy.init_node('robot_controller', disable_signals = True)
-        node_name = rospy.get_name()
-        rospy.logwarn("%s node started" % node_name)
+        self.__left_wheel = pigpio.pi()
+        self.__left_wheel.set_PWM_frequency(\
+            Controller.PINS['motor_left'], Controller.FREQUENCY)
+        self.__left_wheel.set_servo_pulsewidth(\
+            Controller.PINS['motor_left'], Controller.STOP_PULSE_WIDTH)
+            
+        self.__right_wheel = pigpio.pi()
+        self.__right_wheel.set_PWM_frequency(\
+            Controller.PINS['motor_right'], Controller.FREQUENCY)
+        self.__right_wheel.set_servo_pulsewidth(\
+            Controller.PINS['motor_right'], Controller.STOP_PULSE_WIDTH)
             
         # Controller internal data
-        self.vel_x = 0
-        self.vel_y = 0
-        self.vel_th = 0
-        self.vel_left = 0
-        self.vel_right = 0
-        
-        # Robot wheel specification (in meters)
-        self.wheel_radius = 0.075
-        self.axle_length = 0.392
+        self.__vel_x = 0
+        self.__vel_y = 0
+        self.__vel_th = 0
+        self.__vel_left = 0
+        self.__vel_right = 0
 
         # Robot motor speed tuning
-        self.vel_left_fwd_constant = (27.7 / 150.0)
-        self.vel_right_fwd_constant = (33.2 / 150.0)
-        self.vel_left_bwd_constant = (36.0 / 150.0)
-        self.vel_right_bwd_constant = (32.0 / 150.0)
+        self.__VLF_MOD = (27.7 / 150.0)
+        self.__VLB_MOD = (36.0 / 150.0)
+        self.__VRF_MOD = (33.2 / 150.0)
+        self.__VRB_MOD = (32.0 / 150.0)
+        
+        # ROS node initialization
+        rospy.init_node(Controller.NODE_NAME, disable_signals = True)
+        rospy.logwarn("%s node started" % Controller.NODE_NAME)
         
         # Publishers
         # None
 
         # Subscribers
-        rospy.Subscriber('/cmd_vel', Twist, self.twist_callback)
+        rospy.Subscriber('/cmd_vel', Twist, self._twist_callback)
 
     def spin(self):
         """
@@ -69,116 +74,85 @@ class Controller:
             is converted to pulse widths to control the velocity of the robot.
 
             Twist message is a velocity command expressed in velocity of x, y
-            and theta (vx, vy, vth). In this node, we converted (vx, vy, vth) into
-            left and right wheel velocity.
+            and theta (vx, vy, vth). In this node, we converted (vx, vy, vth) 
+            into left and right wheel velocity.
         """
         try:
-            r = rospy.Rate(10)
-
+            r = rospy.Rate(Controller.PUB_RATE)
             while not rospy.is_shutdown():
                 try:
                     self.main()
                     r.sleep()
-
                 except KeyboardInterrupt:
                     break
-
+                    
         except rospy.ROSInterruptException: pass
 
     def main(self):
         """
             Function: moves the robot around
         """
-        self.move_left_wheel()
-        self.move_right_wheel()
+        self._move_left_wheel(self.__vel_left)
+        self._move_right_wheel(self.__vel_right)
 
-    def twist_callback(self, msg):
+    def _twist_callback(self, msg):
         """
-            Function: Do something for every message received through subscriber
+            Function: Do something for every message received through 
+            subscriber.
         """
-        self.vel_x = msg.linear.x
-        self.vel_y = msg.linear.y
-        self.vel_th = -msg.angular.z
+        self.__vel_x = msg.linear.x
+        self.__vel_y = msg.linear.y
+        self.__vel_th = -msg.angular.z
 
-        self.twist_to_velocity()
+        twist_to_vel = utils.twist_to_velocity(self.__vel_x, self.__vel_y,\
+            self.__vel_th, self.__axle_length)
+        
+        self.__vel_left = twist_to_vel['left']
+        self.__vel_right = twist_to_vel['right']
 
-    def twist_to_velocity(self):
-        """
-            Function: convert Twist message to velocity commands
-
-            For every Twist message received i.e velocity x, y and theta,
-            convert to velocity of left and right wheel
-        """
-        if (self.vel_x == 0):
-            # turning
-            if (self.vel_th < 0):
-                self.vel_left = self.vel_th * (self.axle_length / 2) + (self.vel_th * (self.axle_length / 2) * (33.3 / 100))
-                self.vel_right = (-1) * ((self.vel_th * (self.axle_length / 2)) + (self.vel_th * (self.axle_length / 2) * (15.5 / 100)))
-
-            if (self.vel_th > 0):
-                self.vel_left = self.vel_th * (self.axle_length / 2)
-                self.vel_right = (-1) * ((self.vel_th * (self.axle_length / 2)) + (self.vel_th * (self.axle_length / 2) * (20.1 / 100)))
-
-            if (self.vel_th == 0):
-                self.vel_left = self.vel_right = self.vel_th
-
-        if (self.vel_th == 0):
-            # forward or reverse
-            if (self.vel_x > 0):
-                self.vel_left = self.vel_x
-                self.vel_right = self.vel_x + (self.vel_x * (5.5 / 100))
-            
-            if (self.vel_x < 0):
-                self.vel_left = self.vel_x + (self.vel_x * (27.1 / 100))
-                self.vel_right = self.vel_x + (self.vel_x * (21.3 / 100))
-            
-            if (self.vel_x == 0):
-                self.vel_left = self.vel_right = self.vel_x
-        else:
-            # moving doing arcs
-            self.vel_left = self.vel_x + self.vel_th * (self.axle_length / 2)
-            self.vel_right = self.vel_x - self.vel_th * (self.axle_length / 2)
-
-    def move_left_wheel(self):
+    def _move_left_wheel(self, vel):
         """
             Function: turns left wheel motor
 
-            Inputs: left wheel velocity converted from Navigation stack's Twist message
+            Inputs: left wheel velocity converted from Navigation stack's 
+            Twist message.
             Output: leftwheel turning
-        """
-        m = None
-        if (self.vel_left > 0):
-            m = self.vel_left / (self.vel_left_fwd_constant * ((2 * math.pi)/ 60) * self.wheel_radius)        
-            left_wheel.set_servo_pulsewidth(self.motor_left_pin, STOP_WIDTH - m)
+        """      
+        _pulse = 0
+        
+        if (vel > 0):
+            _pulse = utils.velocity_to_pulse(vel,\
+                Controller.WHEEL_RADIUS, self.__VLF_MOD)
         else:
-            m = self.vel_left / (self.vel_left_bwd_constant * ((2 * math.pi)/ 60) * self.wheel_radius)
-            left_wheel.set_servo_pulsewidth(self.motor_left_pin, STOP_WIDTH - m)
+            _pulse = utils.velocity_to_pulse(vel,\
+                Controller.WHEEL_RADIUS, self.__VLF_MOD)
+        
+        self.__right_wheel.set_servo_pulsewidth(Controller.PINS['motor_left'],\
+            STOP_WIDTH - _pulse)
 
-    def move_right_wheel(self):
+    def _move_right_wheel(self, vel):
         """
             Function: turns right wheel motor
 
-            Inputs: right wheel velocity converted from Navigation stack's Twist message
+            Inputs: right wheel velocity converted from Navigation stack's
+            Twist message.
             Output: right wheel turning
         """
-        m = None
-        if (self.vel_right > 0):
-            m = self.vel_right / (self.vel_right_fwd_constant * ((2 * math.pi)/ 60) * self.wheel_radius)
-            right_wheel.set_servo_pulsewidth(self.motor_right_pin, STOP_WIDTH - m)
+        _pulse = 0
+        
+        if (vel > 0):
+            _pulse = utils.velocity_to_pulse(vel,\
+                Controller.WHEEL_RADIUS, self.__VRF_MOD)
         else:
-            m = self.vel_right / (self.vel_right_bwd_constant * ((2 * math.pi)/ 60) * self.wheel_radius)
-            right_wheel.set_servo_pulsewidth(self.motor_right_pin, STOP_WIDTH - m)
-
-    def move_robot(self):
-        """
-            Function: moves the robot around
-        """
-        self.move_left_wheel()
-        self.move_right_wheel()
+            _pulse = utils.velocity_to_pulse(vel,\
+                Controller.WHEEL_RADIUS, self.__VRF_MOD)
+        
+        self.__right_wheel.set_servo_pulsewidth(Controller.PINS['motor_right'],\
+            STOP_WIDTH - _pulse)
 
 if __name__ == '__main__':
     try:
         ctrlr = Controller()
         ctrlr.spin()
-    
+        
     except rospy.ROSInterruptException: pass
