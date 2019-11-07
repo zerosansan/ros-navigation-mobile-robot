@@ -127,7 +127,7 @@ class Controller:
                 Controller.WHEEL_RADIUS, self.__VLF_MOD)
         
         self.__right_wheel.set_servo_pulsewidth(Controller.PINS['motor_left'],\
-            STOP_WIDTH - _pulse)
+            Controller.STOP_PULSE_WIDTH - _pulse)
 
     def _move_right_wheel(self, vel):
         """
@@ -147,7 +147,7 @@ class Controller:
                 Controller.WHEEL_RADIUS, self.__VRF_MOD)
         
         self.__right_wheel.set_servo_pulsewidth(Controller.PINS['motor_right'],\
-            STOP_WIDTH - _pulse)
+            Controller.STOP_PULSE_WIDTH - _pulse)
 
 if __name__ == '__main__':
     try:

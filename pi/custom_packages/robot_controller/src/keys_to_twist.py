@@ -26,7 +26,7 @@ class KeysToTwist:
         rospy.logwarn("%s node started" % KeysToTwist.NODE_NAME)
         
         # Publishers
-        self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
+        self.__twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
         
         # Subscribers
         rospy.Subscriber('keys', String, self._keys_callback)
@@ -45,7 +45,7 @@ class KeysToTwist:
             is to control the robot manually for debugging purposes.
         """
         try:
-            self.last_twist = Twist() # Initialized to zero
+            self.__last_twist = Twist() # Initialized to zero
             r = rospy.Rate(KeysToTwist.PUB_RATE)
 
             while not rospy.is_shutdown():
@@ -58,9 +58,9 @@ class KeysToTwist:
         except rospy.ROSInterruptException: pass
 
     def main(self):
-        self._twist_pub.publish(self.__last_twist)
+        self.__twist_pub.publish(self.__last_twist)
 
-    def keys_callback(self, msg):
+    def _keys_callback(self, msg):
         if (len(msg.data) == 0 or not KeysToTwist.KEY_MAPPING.has_key(msg.data[0])):
             return -1
 

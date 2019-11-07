@@ -17,7 +17,7 @@ def twist_to_velocity(self, vx, vy, vth, axle_len):
         convert to velocity of left and right wheel
     """
     vel = {\
-        'left': 0,\ 
+        'left': 0,\
         'right': 0\
     }
     _vleft = 0
@@ -44,7 +44,7 @@ def twist_to_velocity(self, vx, vy, vth, axle_len):
             _vright = vx + (vx * MOD4)
         if (vx < 0):
             _vleft = vx + (vx * MOD5)
-            _vright = vx + (vx * MOD6))
+            _vright = vx + (vx * MOD6)
         if (vx == 0):
             _vleft = _vright = vx
     else:       
@@ -57,7 +57,7 @@ def twist_to_velocity(self, vx, vy, vth, axle_len):
     
     return vel
     
-def velocity_to_pulse(self, vel, wheel_rad, MOD):
+def velocity_to_pulse(vel, wheel_rad, MOD):
     """
         Function: convert velocity comands to pulse width
     """ 

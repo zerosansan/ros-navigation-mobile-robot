@@ -47,7 +47,7 @@ class KeyPublisher:
         
     def main(self):
         if select.select([sys.stdin], [], [], 0)[0] == [sys.stdin]:
-            self.key_pub.publish(sys.stdin.read(1))
+            self.__key_pub.publish(sys.stdin.read(1))
 
 if __name__ == '__main__':
     try:
