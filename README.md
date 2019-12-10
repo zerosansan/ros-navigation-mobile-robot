@@ -29,6 +29,10 @@ face detection and high level behaviors.
 Any remote computer can be used as user interface to send commands to Eddie's onboard computer and also
 to run [visualization software](http://wiki.ros.org/rviz) provided by ROS.
 
+## Circuit diagram
+
+<img src="images/readme-circuit-setup.png" align="middle">
+
 ## Getting Started
 
 Firstly, we need to install ROS in all the three computers. ROS community has already provide a 
