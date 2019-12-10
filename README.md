@@ -15,7 +15,7 @@ There are three computers involved in our setup, two local computers which are e
 and a single remote computer. Wired LAN is used for communication between local computers while WLAN is used for 
 communication between the local and remote computers as shown below.
 
-<img src="images/readme-hardware-setup.jpg" align="middle">
+<img src="images/readme-hardware-setup.png" align="middle">
 
 **Local computer**
 
@@ -37,9 +37,6 @@ for ROS.
 
 *  [Installing ROS Kinetic on the Raspberry Pi](http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Kinetic%20on%20the%20Raspberry%20Pi)
 *  [Installing ROS Melodic on computer](http://wiki.ros.org/melodic/Installation/Ubuntu)
-
-After successful installation of ROS in both computers, the contents of `Pi and Laptop` should go to Raspberry Pi 
-and Laptop's `~/catkin_ws/src/custom_packages` respectively.
 
 There are two main folders in the repository named `Pi and Laptop` which contains custom ROS packages. 
 As the name suggests, the folder contents should go to their respective `~/catkin_ws/src/custom_packages` 
