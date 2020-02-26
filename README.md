@@ -18,9 +18,13 @@ communication between the local and remote computers as shown below.
 **Local computer**
 
 A [Raspberry Pi 3 model B](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) is equipped on Eddie to interface with the sensors and motors to run odometry 
-computations and move Eddie respectively. Due to the low computational power of Raspberry Pi, a separate 
+computations and move Eddie respectively. 
+
+Due to the low computational power of Raspberry Pi, a separate 
 laptop computer is used to run the more computationally demanding functionalities such as SLAM, navigation, 
 face detection and high level behaviors.
+
+Note that the Kinect may be connected to either the Pi OR the laptop (preferred).
 
 **Remote computer**
 
