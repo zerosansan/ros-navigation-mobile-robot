@@ -1,18 +1,16 @@
 # Indoor mapping and navigation mobile robot based on ROS and Parallax Eddie Platform
 
-In this project, the [Eddie robot](https://www.parallax.com/sites/default/files/downloads/28990-28992-Eddie-Robot-Platform-v1.3.pdf) is re-purposed as a mobile robot platform for carrying 
-out a research project on Autonomous Navigation. [Robot Operating System (ROS)](https://www.ros.org/) is a framework 
-that will be used to develop the robot system. 
+In this project, the [Eddie robot](https://www.parallax.com/sites/default/files/downloads/28990-28992-Eddie-Robot-Platform-v1.3.pdf) from Parallax has been modified to implement its autonomous navigation ability as well as other functionalities of a robotic system base on the [Robot Operating System (ROS)](https://www.ros.org/). 
 
 [ROS navigation stack](http://wiki.ros.org/navigation) is used to provide the 
 autonomous navigation functionality for our robot. The [requirements to run the navigation stack](http://wiki.ros.org/navigation/Tutorials/RobotSetup) properly 
 based on our hardware specifications are fulfilled by implementing our own custom ROS packages as well as 
-using existing packages provided by ROS community.
+using existing packages provided by the ROS community.
 
 ## Hardware setup
 
 There are three computers involved in our setup, two local computers which are equipped on the robot platform 
-and a single remote computer. Wired LAN is used for communication between local computers while WLAN is used for 
+and a single remote computer. Wired LAN is used for communication between the two local computers while WLAN is used for 
 communication between the local and remote computers as shown below.
 
 <img src="images/readme-hardware-setup.png" align="middle">
@@ -29,9 +27,28 @@ face detection and high level behaviors.
 Any remote computer can be used as user interface to send commands to Eddie's onboard computer and also
 to run [visualization software](http://wiki.ros.org/rviz) provided by ROS.
 
-## Circuit diagram
+The remote computer eases the visualization, remote monitoring and control.  The robot can operate autonomously without the remote computer.
+
+**Circuit diagrram**
+
+The diagram below shows the connections from the Raspberry Pi to the sensors and actuators.  Step down power modules are used to provide the 5V and 12V power supply to the circuit.
 
 <img src="images/readme-circuit-setup.png" align="middle">
+
+The components used include:
+
+* 1 x Raspberry Pi 3 Model B
+* 2 x Parallax Aluminum Motor Mount & Wheel Kit with 36-position disk Quadrature Encoders that resolve to 144 encoder positions per revolution
+* 2 x Parallax HB-25 Motor Controller
+* 2 x Pololu adjustable 4-12V Step-Up/Step-Down Voltage Regulator S18V20ALV
+
+The circuit is powered by three 14.4V LiPo battery.
+
+## Software structure
+
+The diagram below shows the software structure based on the ROS.
+
+
 
 ## Getting Started
 
