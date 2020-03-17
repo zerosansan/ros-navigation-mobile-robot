@@ -52,7 +52,7 @@ The circuit is powered by three 14.4V LiPo battery.
 
 The diagram below shows the software structure based on the ROS.
 
-
+<img src="images/ros_nav_stack_software.png" align="middle">
 
 ## Getting Started
 
