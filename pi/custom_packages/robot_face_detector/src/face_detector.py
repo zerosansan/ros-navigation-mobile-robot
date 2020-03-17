@@ -2,11 +2,17 @@
 import rospy
 import numpy as np
 import cv2
-
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Point
 from std_msgs.msg import Bool
+
+FACE_CASCADE_FILE = 'haarcascade_frontalface_alt.xml'
+EYE_CASCADE_FILE = 'haarcascade_eyes_alt.xml'
+GOAL_PUB_NAME = '/face_detector/goal_position'
+FACE_DET_PUB_NAME = '/face_detector/is_there_face'
+RGB_IMG_SUB_NAME = '/camera/rgb/image_raw'
+DEPTH_IMG_SUB_NAME = '/camera/depth/image_raw'
 
 class FaceDetector:
     def __init__(self):
@@ -14,14 +20,14 @@ class FaceDetector:
         rospy.init_node('face_detector', disable_signals = True)
         node_name = rospy.get_name()
         rospy.logwarn("%s node started" % node_name)
-            
+
         # Face detector internal data
         self.bridge = CvBridge()
-        
+
         self.point = Point()
         self.rgb_array = None
         self.depth_array = None
-        self.depth_array_roi = None 
+        self.depth_array_roi = None
         self.rgb_image_roi = None
         self.depth_image_roi = None
         self.goal_pub = None
@@ -32,21 +38,21 @@ class FaceDetector:
         self.roi_w = 0
         self.roi_h = 0
 
-        # Kinect sensor
-        self.m_x = 1.12032 # multiplier constant based on FOV angle for X coordinate.
-        self.m_y = 0.84024 # multiplier constant based on FOV angle for Y coordinate.
+        # Kinect sensor multiplier constant
+        self.m_x = 1.12032
+        self.m_y = 0.84024
 
         # Classifier files
-        self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
-        self.eye_cascade = cv2.CascadeClassifier('haarcascade_eyes_alt.xml')
+        self.face_cascade = cv2.CascadeClassifier(FACE_CASCADE_FILE)
+        self.eye_cascade = cv2.CascadeClassifier(EYE_CASCADE_FILE)
 
         # Publishers
-        self.goal_pub = rospy.Publisher('/face_detector/goal_position', Point)
-        self.face_detect_pub = rospy.Publisher('/face_detector/is_there_face', Bool)
+        self.goal_pub = rospy.Publisher(GOAL_PUB_NAME, Point)
+        self.face_detect_pub = rospy.Publisher(FACE_DET_PUB_NAME, Bool)
 
         # Subscribers
-        rospy.Subscriber('/camera/rgb/image_raw', Image, self.rgb_channel_callback2)
-        rospy.Subscriber('/camera/depth/image_raw', Image, self.depth_channel_callback2)
+        rospy.Subscriber(RGB_IMG_SUB_NAME, Image, self.rgb_channel_callback)
+        rospy.Subscriber(DEPTH_IMG_SUB_NAME, Image, self.depth_channel_callback)
 
     def spin(self):
         """
@@ -62,7 +68,7 @@ class FaceDetector:
                 try:
                     self.main()
                     r.sleep()
-                
+
                 except KeyboardInterrupt:
                     break
 
@@ -75,44 +81,7 @@ class FaceDetector:
         self.face_detect_pub.publish(self.face_detected)
         self.goal_pub.publish(self.point)
 
-        
     def rgb_channel_callback(self, msg):
-        """
-            Function: Detects face based on the RGB Image of Kinect
-
-            **Experimental/ Not used**
-        """
-        self.rgb_array = np.frombuffer(msg.data, dtype = np.uint8)
-        self.rgb_array = np.reshape(self.rgb_array, (480, 640))
-        
-        self.haarcascade(self.rgb_array)
-        
-        if (self.face_detected == True):
-            try:
-                self.rgb_image_pub.publish(self.bridge.cv2_to_imgmsg(self.rgb_image_roi))
-            
-            except CvBridgeError as e:
-                print(e)
-
-        cv2.imshow('img rgb', self.rgb_image_roi)
-        cv2.waitKey(0)
-
-    def depth_channel_callback(self, msg):
-        """
-            Function: Applies the ROI obtained from haar's cascade to depth image of Kinect
-            **Experimental/ Not used**
-        """
-        if (self.face_detected == True):
-            self.depth_array = np.frombuffer(msg.data, dtype = np.uint16)
-            self.depth_array = np.reshape(self.depth_array, (480, 640))
-            
-            self.depth_array_roi = img[self.roi_y:self.roi_y+self.roi_h, self.roi_x:self.roi_x+self.roi_w]
-            self.depth_image_roi = self.depth_array_roi
-            
-            cv2.imshow('img depth', self.depth_image)
-            cv2.waitKey(0)
-
-    def rgb_channel_callback2(self, msg):
         """
             Function: Detects face based on the RGB Image of Kinect
 
@@ -122,17 +91,17 @@ class FaceDetector:
         """
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg)
-        
+
         except CvBridgeError as e:
             print(e)
 
         self.haarcascade(cv_image)
 
-    def depth_channel_callback2(self, msg):
+    def depth_channel_callback(self, msg):
         """
-            Function: Applies the ROI obtained from Haar's cascade 
+            Function: Applies the ROI obtained from Haar's cascade
                         to depth image of Kinect
-            
+
             The ROI of detected face from RGB Image channel is applied to
             the depth image channel to obtain the depth image of detected
             face. This is required to compute the 3D position of the face.
@@ -140,12 +109,13 @@ class FaceDetector:
         if (self.face_detected == True):
             try:
                 cv_image = self.bridge.imgmsg_to_cv2(msg)
-            
+
             except CvBridgeError as e:
                 print(e)
-            
-            self.depth_image_roi = cv_image[self.roi_y:self.roi_y+self.roi_h, self.roi_x:self.roi_x+self.roi_w]
-            
+
+            self.depth_image_roi = cv_image[self.roi_y:self.roi_y + self.roi_h,\
+                self.roi_x:self.roi_x + self.roi_w]
+
             # Convert depth image to pointcloud
             self.depthimage_to_pointcloud(self.depth_image_roi)
 
@@ -154,7 +124,7 @@ class FaceDetector:
 
     def depthimage_to_pointcloud(self, img):
         """
-            Function: Converts depth image of detected face 
+            Function: Converts depth image of detected face
                         into pointcloud information (x, y, z)
 
             Please read my FYP Report for details with regards
@@ -165,7 +135,8 @@ class FaceDetector:
             position for the robot to move towards to using
             the navigation stack.
         """
-        i, j = np.mgrid[self.roi_x:self.roi_x + self.roi_w, self.roi_y:self.roi_y + self.roi_h]
+        i, j = np.mgrid[self.roi_x:self.roi_x + self.roi_w, \
+            self.roi_y:self.roi_y + self.roi_h]
 
         x = ((j / 640.0) - 0.5) * self.m_x * self.depth_image_roi * 0.001
         y = ((i / 480.0) - 0.5) * self.m_y * self.depth_image_roi * 0.001
@@ -178,9 +149,9 @@ class FaceDetector:
         cv2.imshow('rgb', self.rgb_image_roi)
         cv2.imshow('depth', self.depth_image_roi)
         cv2.waitKey(100)
-        
+
         self.set_goal_pose(x, z)
-        
+
     def set_goal_pose(self, x, z):
         """
             Function: Publishes the position of detected face
@@ -201,7 +172,7 @@ class FaceDetector:
             self.roi_y = y
             self.roi_w = w
             self.roi_h = h
-            
+
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
             img_roi = img[y:y+h, x:x+w]
             self.rgb_image_roi = img_roi

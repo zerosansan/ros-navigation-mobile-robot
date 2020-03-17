@@ -5,9 +5,10 @@ import move_base_msgs.msg
 import actionlib_tutorials.msg
 
 def move(x, y, th):
-    client = actionlib.SimpleActionClient("move_base", move_base_msgs.msg.MoveBaseAction)
+    client = actionlib.SimpleActionClient("move_base", \
+        move_base_msgs.msg.MoveBaseAction)
     client.wait_for_server(rospy.Duration(10))
-    
+
     goal = move_base_msgs.msg.MoveBaseGoal()
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
@@ -28,4 +29,4 @@ if __name__ == '__main__':
         move(0.0, 0.0, 1.0)
 
     except rospy.ROSInterruptException: pass
-    
+

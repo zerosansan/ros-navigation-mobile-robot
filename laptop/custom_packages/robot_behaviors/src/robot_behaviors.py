@@ -6,7 +6,6 @@ import actionlib_tutorials.msg
 import cv2
 import time
 import math
-
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Point
 from sensor_msgs.msg import Image
@@ -14,15 +13,21 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool
 from playsound import playsound
 
+ODOM_PUB_NAME = '/odom'
+GOAL_POS_PUB_NAME = '/face_detector/goal_position'
+RGB_IMG_PUB_NAME = '/camera/rgb/image_color'
+FACE_DET_PUB_NAME = '/face_detector/is_there_face'
+
 class Photographer:
     def __init__(self):
         # ROS node initialization
         rospy.init_node('robot_behavior', disable_signals = True)
         node_name = rospy.get_name()
         rospy.logwarn("%s node started" % node_name)
-        
+
         # Robot "moving to goal position" internal data
-        self.client = actionlib.SimpleActionClient("move_base", move_base_msgs.msg.MoveBaseAction)
+        self.client = actionlib.SimpleActionClient("move_base", \
+            move_base_msgs.msg.MoveBaseAction)
         self.goal = move_base_msgs.msg.MoveBaseGoal()
         self.odom_x = 0
         self.odom_y = 0
@@ -45,10 +50,10 @@ class Photographer:
         # None
 
         # Subscribers
-        rospy.Subscriber('/odom', Odometry, self.odom_callback)
-        rospy.Subscriber('/face_detector/goal_position', Point, self.goal_pose_callback)
-        rospy.Subscriber('/camera/rgb/image_color', Image, self.rgb_channel_callback)
-        rospy.Subscriber('/face_detector/is_there_face', Bool, self.face_detect_callback)
+        rospy.Subscriber(ODOM_PUB_NAME, Odometry, self.odom_callback)
+        rospy.Subscriber(GOAL_POS_PUB_NAME, Point, self.goal_pose_callback)
+        rospy.Subscriber(RGB_IMG_PUB_NAME, Image, self.rgb_channel_callback)
+        rospy.Subscriber(FACE_DET_PUB_NAME, Bool, self.face_detect_callback)
 
     def spin(self):
         """
@@ -65,10 +70,10 @@ class Photographer:
                 try:
                     self.main()
                     r.sleep()
-                
+
                 except KeyboardInterrupt:
                     break
-        
+
         except rospy.ROSInterruptException: pass
 
     def main(self):
@@ -85,11 +90,11 @@ class Photographer:
         if (face_detected == True):
             # go to face
             self.go_to_person(self.goal_x, self.goal_y, self.goal_th)
-            
+
             if (person_reached == True):
                 # take picture
                 self.take_picture(self.cv_image)
-                
+
                 if (picture_taken == True):
                     # go to previous location and face opposite direction
                     self.go_to_person(-x, -y, math.pi*2)
@@ -134,7 +139,7 @@ class Photographer:
         """
             Function: Robot behavior - take picture
 
-            Using OpenCV, the image message subscribed from one of 
+            Using OpenCV, the image message subscribed from one of
             Kinect's image topic is saved and displayed.
         """
         self.take_picture_countdown()
@@ -164,12 +169,12 @@ class Photographer:
         playsound('countdown-1.wav')
         time.sleep(1)
         playsound('camera-sound.wav')
- 
+
     def go_to_person(self, x, y, th):
         """
             Function: Robot behavior - go to detected face
 
-            This functionality is basically the same as 
+            This functionality is basically the same as
             manually giving a goal position through rViz.
             The difference is that the (x, z) position of
             the detected face is being given to the navigation
@@ -177,10 +182,10 @@ class Photographer:
         """
         while (not self.client.wait_for_server(rospy.Duration(10))):
             rospy.loginfo("Waiting for the move_base action server to start")
-        
+
         self.goal.target_pose.header.frame_id = "map"
         self.goal.target_pose.header.stamp = rospy.Time.now()
-        
+
         self.goal.target_pose.pose.position.x = self.odom_x + (x/2)
         self.goal.target_pose.pose.position.y = self.odom_y + y
         self.goal.target_pose.pose.orientation.w = 1
@@ -188,7 +193,7 @@ class Photographer:
 
         self.client.send_goal(goal)
         success = self.client.wait_for_result(rospy.Duration(60))
-        
+
         if (success):
             rospy.loginfo("The robot reached goal destination")
             self.person_reached = True

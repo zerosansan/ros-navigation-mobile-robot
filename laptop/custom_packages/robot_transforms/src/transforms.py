@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import rospy
 import tf
-
 from nav_msgs.msg import Odometry
 
 class Transforms:
@@ -23,7 +22,6 @@ class Transforms:
 
             For our robot specification, the Kinect is mounted 1.0m
             higher than the robot base.
-
         """
         try:
             r = rospy.Rate(20)
@@ -35,7 +33,8 @@ class Transforms:
         except rospy.ROSInterruptException: pass
 
     def main(self):
-        self.br.sendTransform((0.0, 0.0, 1.0), (0.0, 0.0, 0.0, 1.0), rospy.Time.now(), "camera_link", "base_link")
+        self.br.sendTransform((0.0, 0.0, 1.0), (0.0, 0.0, 0.0, 1.0), \
+            rospy.Time.now(), "camera_link", "base_link")
 
 if __name__ == '__main__':
     try:
