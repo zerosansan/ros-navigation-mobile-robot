@@ -398,5 +398,5 @@ If you have used this repository in any of your scientific work, please consider
 
 ## Acknowledgments
 
-* Thank you AI Lab for lending the Eddie robot platform and lab facilities.
+* Thank you [Robolab@UBD](https://ailab.space/) for lending the Eddie robot platform and lab facilities.
 
