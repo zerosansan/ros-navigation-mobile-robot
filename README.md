@@ -1,11 +1,29 @@
 # Indoor mapping and navigation mobile robot based on ROS and Parallax Eddie Platform
 
-In this project, the [Eddie robot](https://www.parallax.com/sites/default/files/downloads/28990-28992-Eddie-Robot-Platform-v1.3.pdf) from Parallax has been modified to implement its autonomous navigation ability as well as other functionalities of a robotic system base on the [Robot Operating System (ROS)](https://www.ros.org/). 
+[![Watch the video](https://img.youtube.com/vi/DIdyXZ5SBSs/maxresdefault.jpg)](https://youtu.be/DIdyXZ5SBSs)
+
+In this project, the [Eddie robot](https://www.parallax.com/sites/default/files/downloads/28990-28992-Eddie-Robot-Platform-v1.3.pdf) from Parallax has been modified to implement its autonomous navigation ability as well as other functionalities of a robotic system base on the [Robot Operating System (ROS)](https://www.ros.org/).
 
 [ROS navigation stack](http://wiki.ros.org/navigation) is used to provide the 
 autonomous navigation functionality for our robot. The [requirements to run the navigation stack](http://wiki.ros.org/navigation/Tutorials/RobotSetup) properly 
 based on our hardware specifications are fulfilled by implementing our own custom ROS packages as well as 
 using existing packages provided by the ROS community.
+
+If you have used this repository in any of your scientific work, please consider citing my work using this [BibTeX Citation](#bibtex-citation). A full demonstration video of the mobile robot navigation has been uploaded on [Youtube](https://www.youtube.com/watch?v=DIdyXZ5SBSs).
+
+## Table of contents
+
+* [Hardware setup](#hardware-setup)
+* [Software structure](#software-structure)
+* [Getting started](#getting-started)
+* [Libraries used in writing programs](#libraries-used-in-writing-programs)
+* [Imported ROS packages in the system](#imported-ros-packages-in-the-system)
+* [Satisfying ROS package dependencies](#satisfying-ros-package-dependencies)
+* [Setting up the individual computers to run the system](#setting-up-the-individual-computers-to-run-the-system)
+* [Running the Robot operation](#running-the-robot-operation)
+* [Visualization of ROS topics](#visualization-of-ros-topics)
+* [BibTeX Citation](#bibtex-citation)
+* [Acknowledgments](#acknowledgments)
 
 ## Hardware setup
 
@@ -74,17 +92,19 @@ omit these folder naming conventions if you wish.
 
 ## Libraries used in writing programs
 
-Python is the programming language used for all implementations. The list of libraries used can be installed using
+Python2.7 is the programming language used for all implementations. The list of libraries used can be installed using
 `pip install` command.
 
-**Pi computer**
+**Pi computer and Laptop computer**
+* [Robot Operating System](https://www.ros.org/) - The robot framework and development environment
 
-*  [RPi.GPIO](https://pypi.org/project/RPi.GPIO/)
-*  [pigpio](https://pypi.org/project/pigpio/)
+**Pi computer**
+* [RPi GPIO](https://sourceforge.net/p/raspberry-gpio-python/wiki/Home/) - The library used for controlling GPIO ports of Raspberry Pi
+* [pigpio](https://pypi.org/project/pigpio/) - The library used for PWM of motors
 
 **Laptop computer**
-
-*  [OpenCV](https://pypi.org/project/opencv-python/)
+* [OpenCV](https://opencv.org/) - The library used in face detection implementation
+* [PlaySound](https://github.com/TaylorSMarks/playsound) - The library used in behavior implementation
 
 ## Imported ROS packages in the system
 
@@ -363,18 +383,18 @@ roslaunch explorer_lite explore.launch
 Based on our hardware setup, a remote computer is used to run the [rViz](https://wiki.ros.org/rviz) visualization software. 
 There are useful tutorials on how to use rViz in the wiki page. For convenience, an rViz config file has been uploaded for use.
 
-## Built With
+## BibTeX Citation
 
-* [Robot Operating System](https://www.ros.org/) - The robot framework and development environment
-* [RPi GPIO](https://sourceforge.net/p/raspberry-gpio-python/wiki/Home/) - The library used for controlling GPIO ports of Raspberry Pi
-* [pigpio](https://pypi.org/project/pigpio/) - The library used for PWM of motors
-* [OpenCV](https://opencv.org/) - The library used in face detection implementation
-* [PlaySound](https://github.com/TaylorSMarks/playsound) - The library used in behavior implementation
+If you have used this repository in any of your scientific work, please consider citing my work:
 
-## Authors
-
-* **Hafiq Anas** - *Initial work* - UBD Final Year Project 2018 - 2019
-
+```
+@article{anas2021implementation,
+  title={An implementation of ROS Autonomous Navigation on Parallax Eddie platform},
+  author={Anas, Hafiq and Ong, Wee Hong},
+  journal={arXiv preprint arXiv:2108.12571},
+  year={2021}
+}
+```
 
 ## Acknowledgments
 
