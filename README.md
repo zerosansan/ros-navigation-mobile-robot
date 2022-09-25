@@ -9,7 +9,7 @@ autonomous navigation functionality for our robot. The [requirements to run the 
 based on our hardware specifications are fulfilled by implementing our own custom ROS packages as well as 
 using existing packages provided by the ROS community.
 
-If you have used this repository in any of your scientific work, please consider citing my work using this [BibTeX Citation](#bibtex-citation). A full demonstration video of the mobile robot navigation has been uploaded on [Youtube](https://www.youtube.com/watch?v=DIdyXZ5SBSs).
+If you have found this repository useful or have used this repository in any of your scientific work, please consider citing my work using this [BibTeX Citation](#bibtex-citation). A full demonstration video of the mobile robot navigation has been uploaded on [Youtube](https://www.youtube.com/watch?v=DIdyXZ5SBSs).
 
 ## Table of contents
 
